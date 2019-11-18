@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Dispatch } from 'redux';
 
 import { Board } from './Board';
 import { GameInfo } from './GameInfo';

@@ -3,12 +3,7 @@ import { History } from './types';
 import { GameActionTypes, CHECK_SQUARE_TYPE, CHECK_STEP_TYPE } from './actions';
 
 
-const initval: GameState = {
-  history: [new History(Array(9).fill(null))],
-  stepNumber: 0,
-  xIsNext: isXNext(0),
-  winner: ""
-};
+const initval = nextState([new History(Array(9).fill(null))], 0);
 
 export function gameReducer(
   state = initval,
@@ -25,46 +20,36 @@ export function gameReducer(
 
 };
 
-function isXNext(i: number) { return i % 2 == 1; }
-
 function squareClick(i: number, state: GameState): GameState {
-
   if (state.winner) {
     return { ...state };
   } else {
 
     const nextStepNumber = state.stepNumber + 1;
-    const xIsNextNext = isXNext(nextStepNumber);
     const history = state.history.slice(0, nextStepNumber);
     const current = history[history.length - 1];
     const squares = current.squares.slice();
     squares[i] = state.xIsNext ? "X" : "O";
-    const winner = calculateWinner(squares);
-
-    return {
-      history: history.concat([
-        {
-          squares: squares
-        }
-      ]),
-      stepNumber: nextStepNumber,
-      xIsNext: isXNext(nextStepNumber),
-      winner: winner
-    };
+    return nextState(history.concat([{ squares: squares }]), nextStepNumber);
   }
 }
 
 function stepClick(i: number, state: GameState): GameState {
+  return nextState(state.history, i);
+}
+
+function isXNext(i: number) { return i % 2 == 1; }
+
+function nextState(history: Array<History>, stepNumber: number): GameState {
   return {
-    ...state, ...{
-      stepNumber: i,
-      xIsNext: isXNext(i),
-      winner: calculateWinner(state.history[i].squares)
-    }
+    history: history,
+    stepNumber: stepNumber,
+    xIsNext: isXNext(stepNumber),
+    winner: calculateWinner(history[stepNumber].squares)
   };
 }
 
-function calculateWinner(squares: Array<string>) {
+function calculateWinner(squares: Array<string>): string {
   const lines = [
     [0, 1, 2],
     [3, 4, 5],
@@ -83,5 +68,3 @@ function calculateWinner(squares: Array<string>) {
   }
   return null;
 }
-
-
